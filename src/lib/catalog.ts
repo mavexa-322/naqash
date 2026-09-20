@@ -11,13 +11,20 @@ function applyProductOverrides(products: ShopProduct[]): ShopProduct[] {
     const override = overrides[p.id];
     if (!override) return p;
 
-    const salePrice = override.salePrice !== undefined ? (override.salePrice ?? undefined) : p.salePrice;
-    const badge = override.badge !== undefined ? (override.badge ?? undefined) : p.badge;
-
     return {
       ...p,
-      salePrice,
-      badge,
+      title: override.title !== undefined ? override.title : p.title,
+      description: override.description !== undefined ? override.description : p.description,
+      basePrice: override.basePrice !== undefined ? override.basePrice : p.basePrice,
+      salePrice: override.salePrice !== undefined ? (override.salePrice ?? undefined) : p.salePrice,
+      badge: override.badge !== undefined ? (override.badge ?? undefined) : p.badge,
+      collection: override.collection !== undefined ? override.collection : p.collection,
+      collectionSlug: override.collectionSlug !== undefined ? override.collectionSlug : p.collectionSlug,
+      materials: override.materials !== undefined ? override.materials : p.materials,
+      sizes: override.sizes !== undefined ? override.sizes : p.sizes,
+      colors: override.colors !== undefined ? override.colors : p.colors,
+      image: override.image !== undefined ? override.image : p.image,
+      images: override.images !== undefined ? override.images : p.images,
     };
   });
 }
@@ -42,7 +49,7 @@ type ProductRow = {
   featured: boolean;
   created_at: string;
   collection_id: string | null;
-  collections: Array<{ name: string; slug: string }>;
+  collections: Array<{ name: string; slug: string }> | { name: string; slug: string } | null;
   product_variants: Array<{
     size: string | null;
     color: string | null;
@@ -60,6 +67,10 @@ function toShopProduct(row: ProductRow): ShopProduct {
     .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.display_order - b.display_order)
     .map((image) => image.cloudinary_url);
 
+  const colObj = Array.isArray(row.collections)
+    ? row.collections[0]
+    : (row.collections as unknown as { name?: string; slug?: string } | null);
+
   return {
     id: row.id,
     title: row.title,
@@ -72,8 +83,8 @@ function toShopProduct(row: ProductRow): ShopProduct {
     sizes: [...new Set((row.product_variants ?? []).map((variant) => variant.size).filter(Boolean) as string[])],
     colors: [...new Set((row.product_variants ?? []).map((variant) => variant.color).filter(Boolean) as string[])],
     materials: [...new Set((row.product_variants ?? []).map((variant) => variant.material).filter(Boolean) as string[])],
-    collection: row.collections?.[0]?.name ?? "",
-    collectionSlug: row.collections?.[0]?.slug ?? "",
+    collection: colObj?.name ?? "",
+    collectionSlug: colObj?.slug ?? "",
     badge: row.badge ?? undefined,
     featured: row.featured,
     createdAt: row.created_at,

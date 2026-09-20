@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, ExternalLink, Search, Layers, Image as ImageIcon } from 'lucide-react';
-import { deleteCollectionAction } from './actions';
+import { Plus, Trash2, ExternalLink, Search, Layers, Image as ImageIcon, Pencil, X } from 'lucide-react';
+import { deleteCollectionAction, updateCollectionAction } from './actions';
+import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
 import type { CatalogCollection } from '@/lib/catalog';
 
 interface CollectionsListClientProps {
@@ -16,6 +17,74 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
   const [collections, setCollections] = useState<CatalogCollection[]>(initialCollections);
   const [search, setSearch] = useState('');
   const [isPending, startTransition] = useTransition();
+
+  // Edit Collection state
+  const [editingCollection, setEditingCollection] = useState<CatalogCollection | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editSlug, setEditSlug] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editBannerUrl, setEditBannerUrl] = useState('');
+  const [editError, setEditError] = useState('');
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setEditingCollection(null);
+      }
+    };
+    if (editingCollection) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [editingCollection]);
+
+  const openEditModal = (collection: CatalogCollection) => {
+    setEditingCollection(collection);
+    setEditName(collection.name);
+    setEditSlug(collection.slug);
+    setEditDescription(collection.description || '');
+    setEditBannerUrl(collection.image || '');
+    setEditError('');
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingCollection) return;
+    if (!editName.trim()) {
+      setEditError('Collection name is required.');
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await updateCollectionAction(editingCollection.id, {
+        name: editName.trim(),
+        slug: editSlug.trim() || undefined,
+        description: editDescription.trim() || null as any,
+        bannerUrl: editBannerUrl.trim() || null as any,
+      });
+
+      if (!res.success) {
+        setEditError(res.error || 'Failed to update collection.');
+        return;
+      }
+
+      setCollections((prev) =>
+        prev.map((c) =>
+          c.id === editingCollection.id
+            ? {
+                ...c,
+                name: editName.trim(),
+                slug: editSlug.trim() || c.slug,
+                description: editDescription.trim() || null,
+                image: editBannerUrl.trim() || null,
+              }
+            : c
+        )
+      );
+
+      setEditingCollection(null);
+    });
+  };
 
   const handleDelete = (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete the collection "${name}"?`)) return;
@@ -167,7 +236,15 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
 
                     {/* Actions */}
                     <td className="p-4 text-right">
-                      <div className="inline-flex items-center gap-2">
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(collection)}
+                          className="p-2 text-text-muted hover:text-burgundy hover:bg-cream-alt rounded-lg transition-colors cursor-pointer"
+                          title="Edit Collection"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
                         <Link
                           href={`/collections/${collection.slug}`}
                           target="_blank"
@@ -198,10 +275,8 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
                       <h3 className="font-heading text-lg font-medium text-text-dark">
                         {search ? 'No matching collections' : 'No collections found'}
                       </h3>
-                      <p className="text-xs text-text-muted mt-1 mb-4">
-                        {search
-                          ? `No collection matched "${search}". Try searching for another term.`
-                          : 'You currently have zero collections configured in the gallery.'}
+                      <p className="text-sm text-text-muted mt-1 mb-6 font-light">
+                        {search ? 'Try clearing your search query.' : 'Get started by creating a new curated rug collection.'}
                       </p>
                       {!search && (
                         <Link href="/admin/collections/new">
@@ -219,6 +294,127 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
           </table>
         </div>
       </div>
+
+      {/* Edit Collection Modal */}
+      {editingCollection && (
+        <div 
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingCollection(null);
+          }}
+        >
+          <div 
+            className="bg-white border border-[#DFD7C9] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[88vh] my-auto overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sticky Modal Header */}
+            <div className="flex items-start justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-[#F0EAE1] bg-white sticky top-0 z-20 shrink-0">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-burgundy block mb-0.5">
+                  Atelier Collection Management
+                </span>
+                <h3 className="font-heading text-lg sm:text-xl font-semibold text-text-dark">
+                  Edit Collection: {editingCollection.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCollection(null)}
+                className="p-2 -mr-2 -mt-1 rounded-xl text-text-muted hover:text-text-dark hover:bg-cream-alt transition-colors cursor-pointer"
+                title="Close modal (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Modal Body */}
+            <div className="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 text-left">
+              {editError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                  {editError}
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                  Collection Name <span className="text-burgundy">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy"
+                  placeholder="e.g. Bokhara Royal"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                  URL Slug
+                </label>
+                <input
+                  type="text"
+                  value={editSlug}
+                  onChange={(e) => setEditSlug(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-xs font-mono text-text-dark focus:outline-none focus:border-burgundy"
+                  placeholder="e.g. bokhara-royal"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-xs text-text-dark focus:outline-none focus:border-burgundy"
+                  placeholder="Describe the weaving heritage and motifs of this collection..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                  Banner Image (Cloudinary)
+                </label>
+                <CloudinaryUploadWidget
+                  multiple={false}
+                  compact={true}
+                  onUploadSuccess={(url) => setEditBannerUrl(url)}
+                />
+                <input
+                  type="text"
+                  value={editBannerUrl}
+                  onChange={(e) => setEditBannerUrl(e.target.value)}
+                  className="w-full px-4 py-2 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-xs text-text-dark focus:outline-none focus:border-burgundy"
+                  placeholder="Or direct image URL / Cloudinary URL"
+                />
+              </div>
+            </div>
+
+            {/* Sticky Modal Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-3.5 sm:px-8 sm:py-4 border-t border-[#F0EAE1] bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingCollection(null)}
+                className="rounded-full px-5 text-xs uppercase tracking-wider cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={isPending}
+                onClick={handleSaveEdit}
+                className="bg-burgundy hover:bg-burgundy-deep text-white rounded-full px-6 text-xs uppercase tracking-wider shadow-xs cursor-pointer"
+              >
+                {isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

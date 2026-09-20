@@ -17,8 +17,7 @@ export const metadata: Metadata = {
   description: "Premium, fully dynamic e-commerce website for Naqash Carpets Gallery.",
 };
 
-import { Header } from "@/components/ui/Header";
-import { Footer } from "@/components/ui/Footer";
+import { NavigationShell } from "@/components/layout/NavigationShell";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -27,11 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <NavigationShell>{children}</NavigationShell>
       </body>
     </html>
   );

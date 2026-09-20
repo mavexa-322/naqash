@@ -3,8 +3,18 @@ import path from 'path';
 import { createClient } from '@/utils/supabase/server';
 
 export interface ProductOverride {
+  title?: string;
+  description?: string;
+  basePrice?: number;
   salePrice?: number | null;
   badge?: 'sale' | 'bestseller' | 'new' | null;
+  collection?: string;
+  collectionSlug?: string;
+  materials?: string[];
+  sizes?: string[];
+  colors?: string[];
+  image?: string;
+  images?: string[];
 }
 
 const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'productOverrides.json');
@@ -70,5 +80,42 @@ export async function setProductSaleOverride(
       .eq('id', productId);
   } catch (err) {
     console.warn('Supabase sync skipped for product sale update:', err);
+  }
+}
+
+/**
+ * Update full product attributes in local JSON and Supabase
+ */
+export async function setProductFullOverride(
+  productId: string,
+  override: Partial<ProductOverride> & { collectionId?: string | null }
+): Promise<void> {
+  // 1. Update local JSON override
+  const current = getProductOverrides();
+  current[productId] = {
+    ...current[productId],
+    ...override,
+  };
+  writeProductOverrides(current);
+
+  // 2. Try updating in Supabase
+  try {
+    const supabase = await createClient();
+    const updatePayload: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (override.title !== undefined) updatePayload.title = override.title;
+    if (override.description !== undefined) updatePayload.description = override.description;
+    if (override.basePrice !== undefined) updatePayload.base_price = override.basePrice;
+    if (override.salePrice !== undefined) updatePayload.sale_price = override.salePrice;
+    if (override.badge !== undefined) updatePayload.badge = override.badge;
+    if (override.collectionId !== undefined) updatePayload.collection_id = override.collectionId;
+
+    await supabase
+      .from('products')
+      .update(updatePayload)
+      .eq('id', productId);
+  } catch (err) {
+    console.warn('Supabase sync skipped for full product update:', err);
   }
 }

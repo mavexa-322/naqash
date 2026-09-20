@@ -4,15 +4,11 @@ import { redirect } from 'next/navigation';
 import { verifyAdminSession } from '@/lib/auth/adminAuth';
 import { adminLogoutAction } from '../login/actions';
 import { 
-  LayoutDashboard, 
-  Package, 
-  FolderTree, 
-  Tag, 
-  CreditCard, 
   ExternalLink, 
   LogOut, 
   ShieldCheck 
 } from 'lucide-react';
+import { AdminSidebarNav } from './AdminSidebarNav';
 
 export default async function AdminDashboardLayout({ children }: { children: ReactNode }) {
   const session = await verifyAdminSession();
@@ -24,7 +20,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   return (
     <div className="min-h-screen bg-[#FAF7F2] flex flex-col md:flex-row font-sans">
       {/* Sidebar */}
-      <aside className="w-full md:w-68 bg-white border-r border-[#DFD7C9] p-6 flex flex-col gap-6 shrink-0 shadow-xs">
+      <aside className="w-full md:w-68 bg-white border-r border-[#DFD7C9] p-6 pb-14 md:pb-8 flex flex-col gap-6 shrink-0 shadow-xs">
         {/* Brand header */}
         <div>
           <div className="flex items-center gap-2">
@@ -43,43 +39,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-col gap-1 mt-2">
-          <Link
-            href="/admin"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#2C2523] hover:bg-[#F5EFEB] hover:text-[#5C1D24] transition-colors"
-          >
-            <LayoutDashboard className="w-4 h-4 text-[#8A7F79]" />
-            Dashboard
-          </Link>
-          <Link
-            href="/admin/products"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#2C2523] hover:bg-[#F5EFEB] hover:text-[#5C1D24] transition-colors"
-          >
-            <Package className="w-4 h-4 text-[#8A7F79]" />
-            Products
-          </Link>
-          <Link
-            href="/admin/collections"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#2C2523] hover:bg-[#F5EFEB] hover:text-[#5C1D24] transition-colors"
-          >
-            <FolderTree className="w-4 h-4 text-[#8A7F79]" />
-            Collections
-          </Link>
-          <Link
-            href="/admin/categories"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#2C2523] hover:bg-[#F5EFEB] hover:text-[#5C1D24] transition-colors"
-          >
-            <Tag className="w-4 h-4 text-[#8A7F79]" />
-            Categories
-          </Link>
-          <Link
-            href="/admin/orders"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#2C2523] hover:bg-[#F5EFEB] hover:text-[#5C1D24] transition-colors"
-          >
-            <CreditCard className="w-4 h-4 text-[#8A7F79]" />
-            Orders & Payments
-          </Link>
-        </nav>
+        <AdminSidebarNav />
 
         {/* Sidebar Footer */}
         <div className="mt-auto pt-6 border-t border-[#EFE8DE] flex flex-col gap-4">

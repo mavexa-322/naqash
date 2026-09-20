@@ -1,6 +1,6 @@
 'use server';
 
-import { addStoredCollection, deleteStoredCollection } from '@/lib/collectionsStorage';
+import { addStoredCollection, deleteStoredCollection, updateStoredCollection } from '@/lib/collectionsStorage';
 import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/auth/adminAuth';
 
@@ -51,6 +51,48 @@ export async function createCollectionAction(input: CreateCollectionInput) {
   } catch (error) {
     console.error('Error creating collection:', error);
     return { success: false, error: (error as Error).message || 'Failed to create collection.' };
+  }
+}
+
+export interface UpdateCollectionInput {
+  name?: string;
+  slug?: string;
+  description?: string;
+  bannerUrl?: string;
+}
+
+export async function updateCollectionAction(collectionId: string, input: UpdateCollectionInput) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
+  if (!collectionId) {
+    return { success: false, error: 'Collection ID is required.' };
+  }
+
+  try {
+    const updated = await updateStoredCollection(collectionId, {
+      name: input.name,
+      slug: input.slug,
+      description: input.description,
+      banner_url: input.bannerUrl,
+    });
+
+    if (!updated) {
+      return { success: false, error: 'Collection not found.' };
+    }
+
+    revalidatePath('/collections');
+    revalidatePath('/admin/collections');
+    revalidatePath('/admin');
+    revalidatePath('/shop');
+    revalidatePath('/');
+
+    return { success: true, collection: updated };
+  } catch (error) {
+    console.error('Error updating collection:', error);
+    return { success: false, error: (error as Error).message || 'Failed to update collection.' };
   }
 }
 

@@ -1,30 +1,149 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { toggleBestSellerAction, deleteProductAction, updateProductSaleAction } from './actions';
-import { Sparkles, Plus, Trash2, ExternalLink, Search, Tag, Percent, X, Check } from 'lucide-react';
+import { toggleBestSellerAction, deleteProductAction, updateProductSaleAction, updateProductAction } from './actions';
+import { Sparkles, Plus, Trash2, ExternalLink, Search, Tag, Percent, X, Check, Pencil, CheckCircle2 } from 'lucide-react';
+import { CloudinaryUploadWidget } from '@/components/ui/CloudinaryUploadWidget';
 import type { ShopProduct } from '@/lib/shopData';
+import type { CatalogCollection } from '@/lib/catalog';
 
 interface ProductListClientProps {
   initialProducts: ShopProduct[];
+  collections?: CatalogCollection[];
 }
 
 const DISCOUNT_PRESETS = [10, 15, 20, 25, 30, 40];
 
-export function ProductListClient({ initialProducts }: ProductListClientProps) {
+export function ProductListClient({ initialProducts, collections }: ProductListClientProps) {
   const [products, setProducts] = useState<ShopProduct[]>(initialProducts);
   const [search, setSearch] = useState('');
   const [filterBestsellerOnly, setFilterBestsellerOnly] = useState(false);
   const [filterSaleOnly, setFilterSaleOnly] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Sale Modal state
+  // Full Edit Product state
+  const [editingProduct, setEditingProduct] = useState<ShopProduct | null>(null);
   const [editingSaleProduct, setEditingSaleProduct] = useState<ShopProduct | null>(null);
   const [modalSalePrice, setModalSalePrice] = useState<string>('');
   const [modalPercent, setModalPercent] = useState<string>('');
+  const [editTitle, setEditTitle] = useState('');
+  const [editBasePrice, setEditBasePrice] = useState('');
+  const [editSalePrice, setEditSalePrice] = useState('');
+  const [editCollectionSlug, setEditCollectionSlug] = useState('');
+  const [editBadge, setEditBadge] = useState<string>('');
+  const [editMaterials, setEditMaterials] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editImages, setEditImages] = useState<string[]>([]);
+  const [editError, setEditError] = useState('');
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setEditingProduct(null);
+        setEditingSaleProduct(null);
+      }
+    };
+    if (editingProduct || editingSaleProduct) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [editingProduct, editingSaleProduct]);
+
+  const openEditProductModal = (product: ShopProduct) => {
+    setEditingProduct(product);
+    setEditTitle(product.title);
+    setEditBasePrice(String(product.basePrice));
+    setEditSalePrice(product.salePrice != null ? String(product.salePrice) : '');
+    setEditCollectionSlug(product.collectionSlug || '');
+    setEditBadge(product.badge || '');
+    setEditMaterials(product.materials.join(', '));
+    setEditDescription(product.description || '');
+    const imgs = product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
+    setEditImages(imgs);
+    setEditError('');
+  };
+
+  const handleRemoveEditImage = (indexToRemove: number) => {
+    setEditImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleSetPrimaryEditImage = (indexToPrimary: number) => {
+    setEditImages((prev) => {
+      const selected = prev[indexToPrimary];
+      const rest = prev.filter((_, idx) => idx !== indexToPrimary);
+      return [selected, ...rest];
+    });
+  };
+
+  const handleSaveProductEdit = () => {
+    if (!editingProduct) return;
+    if (!editTitle.trim()) {
+      setEditError('Product title is required.');
+      return;
+    }
+    const parsedBase = parseFloat(editBasePrice);
+    if (isNaN(parsedBase) || parsedBase <= 0) {
+      setEditError('Valid base price is required.');
+      return;
+    }
+
+    const selectedCollection = collections?.find((c) => c.slug === editCollectionSlug);
+    const parsedSale = editSalePrice ? parseFloat(editSalePrice) : null;
+    const materialsArray = editMaterials
+      .split(',')
+      .map((m) => m.trim())
+      .filter(Boolean);
+
+    startTransition(async () => {
+      const res = await updateProductAction(editingProduct.id, {
+        title: editTitle.trim(),
+        description: editDescription.trim(),
+        basePrice: parsedBase,
+        salePrice: parsedSale,
+        badge: (editBadge as any) || null,
+        collectionId: selectedCollection?.id || null,
+        collectionName: selectedCollection?.name || (editCollectionSlug ? editCollectionSlug : null),
+        collectionSlug: editCollectionSlug || null,
+        materials: materialsArray.length > 0 ? materialsArray : undefined,
+        images: editImages,
+        image: editImages[0] || editingProduct.image,
+      });
+
+      if (!res.success) {
+        setEditError(res.error || 'Failed to update product.');
+        return;
+      }
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === editingProduct.id
+            ? {
+                ...p,
+                title: editTitle.trim(),
+                description: editDescription.trim(),
+                basePrice: parsedBase,
+                salePrice: parsedSale ?? undefined,
+                badge: (editBadge as any) || undefined,
+                collection: selectedCollection?.name || (editCollectionSlug ? editCollectionSlug : p.collection),
+                collectionSlug: editCollectionSlug || p.collectionSlug,
+                materials: materialsArray.length > 0 ? materialsArray : p.materials,
+                images: editImages,
+                image: editImages[0] || p.image,
+              }
+            : p
+        )
+      );
+
+      setEditingProduct(null);
+    });
+  };
+
+  // Sale Modal state
+
 
   const handleToggleBestSeller = (product: ShopProduct) => {
     const isCurrentlyBestseller = product.badge === 'bestseller';
@@ -356,6 +475,14 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
                       {/* Actions */}
                       <td className="p-4 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditProductModal(product)}
+                            className="p-2 text-text-muted hover:text-burgundy hover:bg-cream-alt rounded-lg transition-colors cursor-pointer"
+                            title="Edit product"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
                           <Link
                             href={`/shop/${product.slug}`}
                             target="_blank"
@@ -383,104 +510,338 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
         </div>
       </div>
 
-      {/* Sale Price Management Modal */}
-      {editingSaleProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white border border-[#DFD7C9] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-6">
-            <div className="flex items-start justify-between">
+      {/* Full Edit Product Modal */}
+      {editingProduct && (
+        <div 
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingProduct(null);
+          }}
+        >
+          <div 
+            className="bg-white border border-[#DFD7C9] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[88vh] my-auto overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Sticky Header */}
+            <div className="flex items-start justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-[#F0EAE1] bg-white sticky top-0 z-20 shrink-0">
               <div>
-                <span className="text-[10px] uppercase tracking-widest font-semibold text-burgundy block mb-1">
-                  Manage Product Sale
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-burgundy block mb-0.5">
+                  Edit Rug Details
                 </span>
-                <h3 className="font-heading text-xl font-semibold text-text-dark">
-                  {editingSaleProduct.title}
+                <h3 className="font-heading text-lg sm:text-xl font-semibold text-text-dark">
+                  Edit Product
                 </h3>
               </div>
               <button
-                onClick={() => setEditingSaleProduct(null)}
-                className="p-1 text-text-muted hover:text-text-dark cursor-pointer"
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                className="p-2 -mr-2 -mt-1 rounded-xl text-text-muted hover:text-text-dark hover:bg-cream-alt transition-colors cursor-pointer"
+                title="Close modal (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Base Price Display */}
-            <div className="bg-ivory p-4 rounded-2xl border border-[#DFD7C9] flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-text-muted font-medium">Original Base Price:</span>
-              <span className="font-heading text-lg font-semibold text-text-dark">
-                PKR {editingSaleProduct.basePrice.toLocaleString()}
-              </span>
-            </div>
+            {/* Scrollable Body */}
+            <div className="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 text-left">
+              {editError && (
+                <div className="p-3 text-xs bg-red-50 border border-red-200 text-red-700 rounded-xl">
+                  {editError}
+                </div>
+              )}
 
-            {/* Quick Discount Presets */}
-            <div>
-              <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-2">
-                Quick Discount Presets:
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {DISCOUNT_PRESETS.map((pct) => (
-                  <button
-                    key={pct}
-                    type="button"
-                    onClick={() => handlePresetClick(pct)}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
-                      modalPercent === String(pct)
-                        ? 'bg-burgundy text-white border-burgundy shadow-xs'
-                        : 'bg-cream-alt/60 hover:bg-cream-alt text-text-dark border-[#DFD7C9]'
-                    }`}
-                  >
-                    {pct}% OFF
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Dual Inputs: % and Sale Price */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
-                  Discount %
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                  Product Title *
                 </label>
-                <div className="relative">
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy"
+                  placeholder="e.g. Royal Bokhara Classic"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                    Base Price (PKR) *
+                  </label>
                   <input
                     type="number"
                     min="1"
-                    max="99"
-                    value={modalPercent}
-                    onChange={(e) => handlePercentChange(e.target.value)}
-                    className="w-full pl-4 pr-8 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-semibold text-text-dark focus:outline-none focus:border-burgundy"
+                    value={editBasePrice}
+                    onChange={(e) => setEditBasePrice(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-muted font-bold">%</span>
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                    Sale Price (PKR, optional)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editSalePrice}
+                    onChange={(e) => setEditSalePrice(e.target.value)}
+                    placeholder="Leave empty if not on sale"
+                    className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-burgundy focus:outline-none focus:border-burgundy"
+                  />
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
-                  Sale Price (PKR)
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                    Collection
+                  </label>
+                  <select
+                    value={editCollectionSlug}
+                    onChange={(e) => setEditCollectionSlug(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy cursor-pointer"
+                  >
+                    <option value="">-- No Collection / Unassigned --</option>
+                    {collections && collections.map((col) => (
+                      <option key={col.slug} value={col.slug}>
+                        {col.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                    Curatorial Badge
+                  </label>
+                  <select
+                    value={editBadge}
+                    onChange={(e) => setEditBadge(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy cursor-pointer"
+                  >
+                    <option value="">None</option>
+                    <option value="bestseller">Best Seller</option>
+                    <option value="new">New Arrival</option>
+                    <option value="exclusive">Exclusive Atelier</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                  Materials (comma-separated)
                 </label>
                 <input
-                  type="number"
-                  min="1"
-                  max={editingSaleProduct.basePrice - 1}
-                  value={modalSalePrice}
-                  onChange={(e) => handlePriceChange(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-semibold text-burgundy focus:outline-none focus:border-burgundy"
+                  type="text"
+                  value={editMaterials}
+                  onChange={(e) => setEditMaterials(e.target.value)}
+                  placeholder="e.g. Pure Silk, Handspun Wool"
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Artisanal description and heritage craftsmanship details..."
+                  className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-medium text-text-dark focus:outline-none focus:border-burgundy resize-none"
+                />
+              </div>
+
+              {/* Product Images (Cloudinary) */}
+              <div className="space-y-3 pt-2 border-t border-[#F0EAE1]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                      Product Images (Cloudinary)
+                    </label>
+                    <p className="text-[11px] text-text-muted mt-0.5">
+                      Upload from computer directly to Cloudinary or paste URL. First image is the primary cover.
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono text-text-muted">
+                    {editImages.length} image{editImages.length === 1 ? '' : 's'}
+                  </span>
+                </div>
+
+                {/* Image Previews */}
+                {editImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 py-1">
+                    {editImages.map((url, idx) => (
+                      <div key={idx} className="group relative aspect-square rounded-xl overflow-hidden border border-[#DFD7C9] bg-ivory shadow-xs">
+                        <Image src={url} alt={`Preview ${idx + 1}`} fill className="object-cover" />
+                        {idx === 0 ? (
+                          <span className="absolute top-1.5 left-1.5 bg-[#C9A15C] text-[#1C1815] text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-xs flex items-center gap-0.5">
+                            <CheckCircle2 className="w-2.5 h-2.5" />
+                            Primary
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimaryEditImage(idx)}
+                            className="absolute top-1.5 left-1.5 bg-black/70 hover:bg-black text-white text-[8px] px-1.5 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          >
+                            Set Primary
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditImage(idx)}
+                          className="absolute top-1.5 right-1.5 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-xs transition-transform group-hover:scale-110 cursor-pointer"
+                          title="Remove image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <CloudinaryUploadWidget
+                  compact={true}
+                  onUploadSuccess={(url) => setEditImages((prev) => [...prev, url])}
                 />
               </div>
             </div>
 
-            {/* Live Calculation Preview */}
-            {parseFloat(modalSalePrice) > 0 && parseFloat(modalSalePrice) < editingSaleProduct.basePrice && (
-              <div className="bg-emerald-50 border border-emerald-200/70 p-3 rounded-xl flex items-center justify-between text-xs">
-                <span className="text-emerald-800 font-medium">Customer Savings:</span>
-                <span className="text-emerald-900 font-bold">
-                  Save PKR {(editingSaleProduct.basePrice - parseFloat(modalSalePrice)).toLocaleString()} ({modalPercent}% OFF)
+            {/* Sticky Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-3.5 sm:px-8 sm:py-4 border-t border-[#F0EAE1] bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingProduct(null)}
+                className="rounded-full px-5 text-xs uppercase tracking-wider cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveProductEdit}
+                disabled={isPending}
+                className="bg-burgundy hover:bg-burgundy-deep text-white rounded-full px-6 text-xs uppercase tracking-wider shadow-xs cursor-pointer"
+              >
+                {isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sale Price Management Modal */}
+      {editingSaleProduct && (
+        <div 
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setEditingSaleProduct(null);
+          }}
+        >
+          <div 
+            className="bg-white border border-[#DFD7C9] rounded-2xl sm:rounded-3xl max-w-md w-full shadow-2xl flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[88vh] my-auto overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-[#F0EAE1] bg-white sticky top-0 z-20 shrink-0">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest font-semibold text-burgundy block mb-0.5">
+                  Manage Product Sale
+                </span>
+                <h3 className="font-heading text-lg sm:text-xl font-semibold text-text-dark">
+                  {editingSaleProduct.title}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingSaleProduct(null)}
+                className="p-2 -mr-2 -mt-1 rounded-xl text-text-muted hover:text-text-dark hover:bg-cream-alt transition-colors cursor-pointer"
+                title="Close modal (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1 text-left">
+              {/* Base Price Display */}
+              <div className="bg-ivory p-4 rounded-2xl border border-[#DFD7C9] flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider text-text-muted font-medium">Original Base Price:</span>
+                <span className="font-heading text-lg font-semibold text-text-dark">
+                  PKR {editingSaleProduct.basePrice.toLocaleString()}
                 </span>
               </div>
-            )}
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-[#F0EAE1]">
+              {/* Quick Discount Presets */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark mb-2">
+                  Quick Discount Presets:
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DISCOUNT_PRESETS.map((pct) => (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => handlePresetClick(pct)}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+                        modalPercent === String(pct)
+                          ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                          : 'bg-cream-alt/60 hover:bg-cream-alt text-text-dark border-[#DFD7C9]'
+                      }`}
+                    >
+                      {pct}% OFF
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dual Inputs: % and Sale Price */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                    Discount %
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="99"
+                      value={modalPercent}
+                      onChange={(e) => handlePercentChange(e.target.value)}
+                      className="w-full pl-4 pr-8 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-semibold text-text-dark focus:outline-none focus:border-burgundy"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-muted font-bold">%</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-dark">
+                    Sale Price (PKR)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={editingSaleProduct.basePrice - 1}
+                    value={modalSalePrice}
+                    onChange={(e) => handlePriceChange(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-ivory/50 border border-[#DFD7C9] rounded-xl text-sm font-semibold text-burgundy focus:outline-none focus:border-burgundy"
+                  />
+                </div>
+              </div>
+
+              {/* Live Calculation Preview */}
+              {parseFloat(modalSalePrice) > 0 && parseFloat(modalSalePrice) < editingSaleProduct.basePrice && (
+                <div className="bg-emerald-50 border border-emerald-200/70 p-3 rounded-xl flex items-center justify-between text-xs">
+                  <span className="text-emerald-800 font-medium">Customer Savings:</span>
+                  <span className="text-emerald-900 font-bold">
+                    Save PKR {(editingSaleProduct.basePrice - parseFloat(modalSalePrice)).toLocaleString()} ({modalPercent}% OFF)
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between px-6 py-3.5 sm:px-8 sm:py-4 border-t border-[#F0EAE1] bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 shrink-0">
               {editingSaleProduct.salePrice ? (
                 <button
                   type="button"
@@ -499,7 +860,7 @@ export function ProductListClient({ initialProducts }: ProductListClientProps) {
                   type="button"
                   variant="outline"
                   onClick={() => setEditingSaleProduct(null)}
-                  className="rounded-full px-4 text-xs uppercase tracking-wider"
+                  className="rounded-full px-4 text-xs uppercase tracking-wider cursor-pointer"
                 >
                   Cancel
                 </Button>

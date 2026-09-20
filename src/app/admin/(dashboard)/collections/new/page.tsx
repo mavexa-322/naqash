@@ -171,7 +171,8 @@ export default function AddNewCollectionPage() {
           </div>
 
           <CloudinaryUploadWidget
-            uploadPreset="naqash_gallery"
+            multiple={false}
+            compact={true}
             onUploadSuccess={(url) => setBannerUrl(url)}
           />
 

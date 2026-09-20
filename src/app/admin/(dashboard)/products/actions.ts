@@ -1,7 +1,7 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { setProductSaleOverride } from '@/lib/productsStorage';
+import { setProductSaleOverride, setProductFullOverride } from '@/lib/productsStorage';
 import { revalidatePath } from 'next/cache';
 import { verifyAdminSession } from '@/lib/auth/adminAuth';
 
@@ -170,5 +170,77 @@ export async function deleteProductAction(productId: string) {
   revalidatePath('/');
   revalidatePath('/admin/products');
   revalidatePath('/shop');
+  return { success: true };
+}
+
+export interface UpdateProductInput {
+  title?: string;
+  description?: string;
+  basePrice?: number;
+  salePrice?: number | null;
+  badge?: 'bestseller' | 'new' | 'sale' | null;
+  collectionId?: string | null;
+  collectionName?: string | null;
+  collectionSlug?: string | null;
+  materials?: string[];
+  sizes?: string[];
+  colors?: string[];
+  image?: string;
+  images?: string[];
+}
+
+export async function updateProductAction(productId: string, input: UpdateProductInput) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
+  // 1. Update local product overrides for full persistence
+  try {
+    await setProductFullOverride(productId, {
+      title: input.title,
+      description: input.description,
+      basePrice: input.basePrice,
+      salePrice: input.salePrice,
+      badge: input.badge,
+      collection: input.collectionName || undefined,
+      collectionSlug: input.collectionSlug || undefined,
+      collectionId: input.collectionId,
+      materials: input.materials,
+      sizes: input.sizes,
+      colors: input.colors,
+      image: input.image,
+      images: input.images,
+    });
+  } catch (err) {
+    console.error('Error saving local product override:', err);
+  }
+
+  // 2. Try updating in Supabase
+  try {
+    const supabase = await createClient();
+    const updatePayload: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (input.title !== undefined) updatePayload.title = input.title;
+    if (input.description !== undefined) updatePayload.description = input.description;
+    if (input.basePrice !== undefined) updatePayload.base_price = input.basePrice;
+    if (input.salePrice !== undefined) updatePayload.sale_price = input.salePrice;
+    if (input.badge !== undefined) updatePayload.badge = input.badge;
+    if (input.collectionId !== undefined) updatePayload.collection_id = input.collectionId;
+
+    await supabase
+      .from('products')
+      .update(updatePayload)
+      .eq('id', productId);
+  } catch (err) {
+    console.warn('Supabase product update error:', err);
+  }
+
+  revalidatePath('/');
+  revalidatePath('/sale');
+  revalidatePath('/shop');
+  revalidatePath('/admin/products');
+  revalidatePath('/admin');
   return { success: true };
 }
