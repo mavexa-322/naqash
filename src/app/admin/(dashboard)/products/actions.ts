@@ -3,8 +3,14 @@
 import { createClient } from '@/utils/supabase/server';
 import { setProductSaleOverride } from '@/lib/productsStorage';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/auth/adminAuth';
 
 export async function toggleBestSellerAction(productId: string, currentBadge?: string | null) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   const supabase = await createClient();
   const nextBadge = currentBadge === 'bestseller' ? null : 'bestseller';
 
@@ -39,6 +45,11 @@ export async function updateProductSaleAction(
   salePrice: number | null,
   badge?: 'sale' | 'bestseller' | 'new' | null
 ) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   try {
     await setProductSaleOverride(productId, salePrice, badge);
 
@@ -66,6 +77,11 @@ export interface CreateProductInput {
 }
 
 export async function createProductAction(input: CreateProductInput) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   const supabase = await createClient();
 
   // Generate URL slug from title if not explicitly provided
@@ -135,6 +151,11 @@ export async function createProductAction(input: CreateProductInput) {
 }
 
 export async function deleteProductAction(productId: string) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from('products')

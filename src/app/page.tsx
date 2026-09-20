@@ -17,29 +17,50 @@ export default async function Home() {
       <section className="relative min-h-screen w-full flex flex-col justify-between pt-24 sm:pt-28 pb-6 sm:pb-8">
         {/* Background Image & Subtle Warm Ambient Vignette */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <Image
-            src="/hero-background-exact.jpg"
-            alt="Authentic handwoven Persian rug curving across warm amber studio background"
-            fill
-            className="object-cover image-grade object-[65%_center] sm:object-center"
-            priority
-            quality={95}
-          />
-          {/* Subtle top vignette for navbar clarity */}
-          <div className="absolute top-0 inset-x-0 h-36 md:h-44 bg-gradient-to-b from-black/65 via-black/25 to-transparent" />
+          {/* Mobile Background Image (< 640px) */}
+          <div className="block sm:hidden absolute inset-0">
+            <Image
+              src="/hero-background-exact.jpg"
+              alt="Authentic handwoven Persian rug curving across warm amber studio background"
+              fill
+              priority
+              quality={95}
+              className="image-grade"
+              style={{ objectFit: 'cover', objectPosition: '78% 10%' }}
+            />
+          </div>
+
+          {/* Desktop Background Image (>= 640px) */}
+          <div className="hidden sm:block absolute inset-0">
+            <Image
+              src="/hero-background-exact.jpg"
+              alt="Authentic handwoven Persian rug curving across warm amber studio background"
+              fill
+              priority
+              quality={95}
+              className="image-grade"
+              style={{ objectFit: 'cover', objectPosition: 'center center' }}
+            />
+          </div>
+
+          {/* Top vignette for navbar clarity */}
+          <div className="absolute top-0 inset-x-0 h-36 md:h-44 bg-gradient-to-b from-black/75 via-black/35 to-transparent" />
           
+          {/* Mobile dark ambiance overlay to ensure 100% text readability */}
+          <div className="block sm:hidden absolute inset-0 bg-gradient-to-b from-transparent via-black/35 to-black/80" />
+
           {/* Soft bottom vignette behind cards and floor */}
           <div className="absolute bottom-0 inset-x-0 h-64 md:h-80 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
         </div>
         
         {/* Middle Row: Right-Aligned Hero Content Placed Under the Curve */}
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-16 flex-1 flex items-center justify-end py-6 sm:py-8 lg:py-10">
-          <div className="max-w-xl text-left space-y-3.5 sm:space-y-4 md:space-y-5">
-            <h1 className="editorial-reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-medium leading-[1.1] tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+          <div className="max-w-xl text-left space-y-3.5 sm:space-y-4 md:space-y-5 mt-14 sm:mt-0 pt-4 sm:pt-0">
+            <h1 className="editorial-reveal text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-medium leading-[1.12] tracking-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
               <span 
                 className="block bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: 'linear-gradient(90deg, #B88755 0%, #D8B28A 35%, #F5ECE0 65%, #FFFFFF 90%)',
+                  backgroundImage: 'linear-gradient(90deg, #E5C384 0%, #F5ECE0 45%, #FFFFFF 95%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -49,7 +70,7 @@ export default async function Home() {
               <span 
                 className="block bg-clip-text text-transparent"
                 style={{
-                  backgroundImage: 'linear-gradient(90deg, #B88755 0%, #D8B28A 35%, #F5ECE0 65%, #FFFFFF 90%)',
+                  backgroundImage: 'linear-gradient(90deg, #E5C384 0%, #F5ECE0 45%, #FFFFFF 95%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                 }}
@@ -57,13 +78,13 @@ export default async function Home() {
                 for Every Home
               </span>
             </h1>
-            <p className="editorial-reveal text-xs sm:text-sm md:text-base text-[#E8DCCF]/90 leading-relaxed max-w-md font-light drop-shadow-sm">
+            <p className="editorial-reveal text-xs sm:text-sm md:text-base text-[#F5EDE3] sm:text-[#E8DCCF]/90 leading-relaxed max-w-md font-normal sm:font-light drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:drop-shadow-sm">
               Contemporary and traditional styles, handwoven by master artisans. Visit our showroom for a free expert consultation.
             </p>
             <div className="pt-1 sm:pt-2">
               <Link 
                 href="/contact" 
-                className="inline-block border border-[#C9A15C]/60 hover:border-[#FFFDF9] bg-black/20 hover:bg-black/40 backdrop-blur-xs text-[#F7F2E9] uppercase text-[10px] sm:text-[11px] md:text-xs tracking-[0.18em] sm:tracking-[0.2em] px-5 sm:px-8 py-2.5 sm:py-3 transition-all duration-300 font-medium rounded-xs shadow-sm hover:shadow-md"
+                className="inline-block border border-[#C9A15C]/80 hover:border-[#FFFDF9] bg-black/40 sm:bg-black/20 hover:bg-black/50 backdrop-blur-xs text-[#F7F2E9] uppercase text-[10px] sm:text-[11px] md:text-xs tracking-[0.18em] sm:tracking-[0.2em] px-5 sm:px-8 py-2.5 sm:py-3 transition-all duration-300 font-medium rounded-xs shadow-md hover:shadow-lg"
               >
                 BOOK A VISIT TO OUR SHOWROOM
               </Link>
@@ -73,35 +94,35 @@ export default async function Home() {
 
         {/* Bottom Row: 4 Glassmorphism Feature Cards & Scroll Indicator */}
         <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-16 space-y-3 sm:space-y-4 mt-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-5">
             {/* Card 1: Quality */}
-            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-4 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
-              <h3 className="font-heading text-base sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1.5 tracking-wide">Quality</h3>
-              <p className="text-[11px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
+            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-3 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
+              <h3 className="font-heading text-sm sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1 sm:mb-1.5 tracking-wide">Quality</h3>
+              <p className="text-[10px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
                 Naqash Carpets offers unique, handmade rugs, carpets, and kilims at affordable prices. Crafted sustainably from 100% organic materials.
               </p>
             </div>
 
             {/* Card 2: Beauty */}
-            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-4 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
-              <h3 className="font-heading text-base sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1.5 tracking-wide">Beauty</h3>
-              <p className="text-[11px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
+            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-3 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
+              <h3 className="font-heading text-sm sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1 sm:mb-1.5 tracking-wide">Beauty</h3>
+              <p className="text-[10px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
                 Each rug is a vibrant work of art, blending tradition with innovation through intricate patterns and bold colors.
               </p>
             </div>
 
             {/* Card 3: Partners */}
-            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-4 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
-              <h3 className="font-heading text-base sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1.5 tracking-wide">Partners</h3>
-              <p className="text-[11px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
+            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-3 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
+              <h3 className="font-heading text-sm sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1 sm:mb-1.5 tracking-wide">Partners</h3>
+              <p className="text-[10px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
                 We partner only with certified weavers, ensuring ethical, fair-trade craftsmanship with no child labor or unethical practices.
               </p>
             </div>
 
             {/* Card 4: Approach */}
-            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-4 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
-              <h3 className="font-heading text-base sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1.5 tracking-wide">Approach</h3>
-              <p className="text-[11px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
+            <div className="bg-white/[0.06] hover:bg-white/[0.09] backdrop-blur-md border border-white/[0.12] p-3 sm:p-5 rounded-xs shadow-lg transition-all duration-300 flex flex-col justify-start">
+              <h3 className="font-heading text-sm sm:text-lg lg:text-xl font-medium text-[#E0C5A2] mb-1 sm:mb-1.5 tracking-wide">Approach</h3>
+              <p className="text-[10px] sm:text-xs text-[#D8CCC0]/85 leading-relaxed font-light">
                 Our transparent approach means no gimmicks or inflated discounts—just honest pricing and expert guidance to help you find the perfect rug.
               </p>
             </div>

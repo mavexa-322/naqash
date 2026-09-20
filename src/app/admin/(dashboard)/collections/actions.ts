@@ -2,6 +2,7 @@
 
 import { addStoredCollection, deleteStoredCollection } from '@/lib/collectionsStorage';
 import { revalidatePath } from 'next/cache';
+import { verifyAdminSession } from '@/lib/auth/adminAuth';
 
 export interface CreateCollectionInput {
   name: string;
@@ -11,6 +12,11 @@ export interface CreateCollectionInput {
 }
 
 export async function createCollectionAction(input: CreateCollectionInput) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   if (!input.name || input.name.trim().length === 0) {
     return { success: false, error: 'Collection name is required.' };
   }
@@ -49,6 +55,11 @@ export async function createCollectionAction(input: CreateCollectionInput) {
 }
 
 export async function deleteCollectionAction(collectionId: string) {
+  const session = await verifyAdminSession();
+  if (!session.isAuthenticated) {
+    return { success: false, error: 'Unauthorized: Administrator privileges required.' };
+  }
+
   if (!collectionId) {
     return { success: false, error: 'Collection ID is required.' };
   }
