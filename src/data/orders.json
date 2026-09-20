@@ -1,0 +1,32 @@
+[
+  {
+    "id": "9bf36089-4730-4133-9e62-c6ce9036c4b8",
+    "order_number": "NQ-2026-5348",
+    "customer_first_name": "Abdul",
+    "customer_last_name": "Moeez",
+    "customer_email": "abdulmoeez5846@gmail.com",
+    "customer_phone": "03005541023",
+    "street_address": "6 Road",
+    "city": "Select City",
+    "postal_code": "",
+    "total_amount": 156000,
+    "payment_method": "bank_transfer",
+    "payment_screenshot_url": "https://res.cloudinary.com/slqao1ue/image/upload/v1789899411/u7qfx8363fi3yqfdw60y.png",
+    "payment_status": "pending_verification",
+    "order_status": "pending",
+    "created_at": "2026-09-20T10:16:57.180Z",
+    "updated_at": "2026-09-20T10:16:57.180Z",
+    "items": [
+      {
+        "id": "d8969007-4641-47ae-882e-d2636dfcaed6",
+        "order_id": "9bf36089-4730-4133-9e62-c6ce9036c4b8",
+        "product_id": "33333333-3333-3333-3333-333333333303",
+        "product_title": "Geo Lines Contemporary",
+        "size": "5x8",
+        "price": 78000,
+        "quantity": 2,
+        "image_url": "/rugs/modern-geometric.jpg"
+      }
+    ]
+  }
+]

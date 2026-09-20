@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/ui/Header';
 import { Footer } from '@/components/ui/Footer';
 
+import { CartDrawer } from '@/components/ui/CartDrawer';
+
 interface NavigationShellProps {
   children: React.ReactNode;
 }
@@ -20,6 +22,7 @@ export function NavigationShell({ children }: NavigationShellProps) {
   return (
     <>
       <Header />
+      <CartDrawer />
       <main className="flex-1">
         {children}
       </main>

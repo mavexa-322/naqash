@@ -5,11 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, Menu, X } from 'lucide-react';
+import { useCartStore } from '@/store/useCartStore';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { openCart, getItemCount } = useCartStore();
 
   const isHome = pathname === '/';
   const hasSolidBg = !isHome || isScrolled;
@@ -18,6 +21,10 @@ export function Header() {
   const isShopActive = pathname.startsWith('/shop');
   const isSaleActive = pathname === '/sale';
   const isAboutActive = pathname.startsWith('/about');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,11 +127,25 @@ export function Header() {
           </Link>
         </nav>
 
-        {/* Right: Contact Bronze Button (Matching Reference) & Mobile Toggle */}
-        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+        {/* Right: Cart, Contact Bronze Button & Mobile Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
+          {/* Cart Trigger */}
+          <button
+            onClick={openCart}
+            className="relative p-2 text-[#F7F2E9] hover:text-[#C9A15C] transition-colors rounded-full hover:bg-white/5 cursor-pointer"
+            aria-label="Open shopping cart"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {mounted && getItemCount() > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-burgundy text-white text-[10px] font-bold rounded-full h-4 min-w-4 px-1 flex items-center justify-center border border-[#181411] shadow-sm">
+                {getItemCount()}
+              </span>
+            )}
+          </button>
+
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center bg-[#644122]/70 hover:bg-[#784E2A]/90 text-[#F7F2E9] font-medium text-[10px] sm:text-xs uppercase tracking-[0.18em] sm:tracking-[0.22em] px-4 sm:px-7 py-2 sm:py-3 border border-[#9A6D3F]/50 backdrop-blur-xs transition-all duration-300 shadow-sm whitespace-nowrap"
+            className="inline-flex items-center justify-center bg-[#644122]/70 hover:bg-[#784E2A]/90 text-[#F7F2E9] font-medium text-[10px] sm:text-xs uppercase tracking-[0.18em] sm:tracking-[0.22em] px-3.5 sm:px-6 md:px-7 py-2 sm:py-2.5 md:py-3 border border-[#9A6D3F]/50 backdrop-blur-xs transition-all duration-300 shadow-sm whitespace-nowrap"
           >
             Contact
           </Link>
@@ -132,7 +153,7 @@ export function Header() {
           {/* Mobile Menu Toggle Button */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-[#F7F2E9] hover:text-white p-1 sm:p-1.5 transition-colors"
+            className="lg:hidden text-[#F7F2E9] hover:text-white p-1 sm:p-1.5 transition-colors cursor-pointer"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
@@ -183,6 +204,21 @@ export function Header() {
             >
               About
             </Link>
+            <div className="h-px bg-white/10" />
+            <button 
+              onClick={() => {
+                setMobileMenuOpen(false);
+                openCart();
+              }}
+              className="flex items-center justify-between text-left hover:text-white uppercase tracking-[0.2em] font-medium"
+            >
+              <span>Shopping Cart</span>
+              {mounted && getItemCount() > 0 && (
+                <span className="bg-burgundy text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                  {getItemCount()}
+                </span>
+              )}
+            </button>
             <div className="pt-4">
               <Link
                 href="/contact"

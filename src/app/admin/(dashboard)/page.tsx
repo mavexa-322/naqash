@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProducts, getCollections } from '@/lib/catalog';
+import { getAllOrders } from '@/lib/ordersStorage';
 import { 
   Package, 
   FolderTree, 
@@ -12,22 +13,25 @@ import {
   Eye,
   TrendingUp,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  CreditCard,
+  Clock
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const [products, collections] = await Promise.all([
+  const [products, collections, orders] = await Promise.all([
     getProducts(),
     getCollections(),
+    getAllOrders(),
   ]);
 
   const bestsellersCount = products.filter((p) => p.badge === 'bestseller' || p.featured).length;
   const onSaleCount = products.filter(
     (p) => (p.salePrice != null && p.salePrice < p.basePrice) || p.badge === 'sale'
   ).length;
-  const newArrivalsCount = products.filter((p) => p.badge === 'new').length;
+  const pendingOrdersCount = orders.filter((o) => o.payment_status === 'pending_verification').length;
 
   const totalCatalogValue = products.reduce((acc, p) => acc + (p.basePrice || 0), 0);
   const recentProducts = products.slice(0, 6);
@@ -80,6 +84,32 @@ export default async function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* ── Pending Orders Alert Banner (if any) ───────────────── */}
+      {pendingOrdersCount > 0 && (
+        <div className="bg-amber-50 border border-amber-300/80 p-4 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-semibold text-amber-950">
+                {pendingOrdersCount} client {pendingOrdersCount === 1 ? 'order is' : 'orders are'} awaiting payment receipt verification
+              </p>
+              <p className="text-[11px] text-amber-800 font-light">
+                Inspect uploaded bank transfer screenshots and approve orders for shipping.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/admin/orders"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-full text-xs font-semibold uppercase tracking-wider shrink-0 transition-colors shadow-xs"
+          >
+            <span>Review Orders</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
 
       {/* ── 2. Metric Cards Grid (4 luxury cards) ───────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
@@ -143,25 +173,38 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Card 4: Archive Sale Pieces */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#DFD7C9] p-4 sm:p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+        {/* Card 4: Orders & Payments */}
+        <Link
+          href="/admin/orders"
+          className="bg-white rounded-2xl sm:rounded-3xl border border-[#DFD7C9] p-4 sm:p-6 shadow-xs hover:shadow-md hover:border-burgundy transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-text-muted">
-              Archive Sale
+              Client Orders
             </span>
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-red-50 text-burgundy flex items-center justify-center">
-              <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center ${
+              pendingOrdersCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-cream-alt text-burgundy'
+            }`}>
+              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div>
-            <span className="font-heading text-3xl sm:text-4xl font-medium text-burgundy">
-              {onSaleCount}
-            </span>
-            <p className="text-[10px] sm:text-xs text-text-muted font-light mt-1">
-              Pieces with special pricing
+            <div className="flex items-baseline gap-2">
+              <span className="font-heading text-3xl sm:text-4xl font-medium text-text-dark group-hover:text-burgundy transition-colors">
+                {orders.length}
+              </span>
+              {pendingOrdersCount > 0 && (
+                <span className="text-[9px] sm:text-[10px] bg-amber-100 text-amber-900 border border-amber-300 font-bold px-2 py-0.5 rounded-full">
+                  {pendingOrdersCount} pending
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] sm:text-xs text-text-muted font-light mt-1 group-hover:text-burgundy flex items-center gap-1">
+              <span>View & verify receipts</span>
+              <ArrowRight className="w-3 h-3" />
             </p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* ── 3. Collections Overview Grid ────────────────────────── */}

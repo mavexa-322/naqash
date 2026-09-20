@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Eye } from "lucide-react";
+import { Heart, Eye, ShoppingCart, Check } from "lucide-react";
 import { useState } from "react";
 import type { ShopProduct } from "@/lib/shopData";
+import { useCartStore } from "@/store/useCartStore";
 
 interface ProductCardProps {
   product: ShopProduct;
@@ -12,12 +13,30 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
+  const { addItem } = useCartStore();
 
   const displayPrice = product.salePrice ?? product.basePrice;
   const hasDiscount = product.salePrice != null && product.salePrice < product.basePrice;
   const discountPercent = hasDiscount
     ? Math.round(((product.basePrice - product.salePrice!) / product.basePrice) * 100)
     : 0;
+
+  const handleQuickAdd = () => {
+    const size = product.sizes?.[0] || 'Standard';
+    addItem({
+      id: `${product.id}-${size}`,
+      productId: product.id,
+      title: product.title,
+      size: size,
+      price: displayPrice,
+      image: product.image || '',
+      quantity: 1,
+    }, true);
+
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
 
   return (
     <div className="group relative bg-white border border-[#DFD7C9] rounded-xl sm:rounded-2xl p-2.5 sm:p-3 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
@@ -59,7 +78,7 @@ export function ProductCard({ product }: ProductCardProps) {
           ) : null}
 
           {/* Quick Action Buttons */}
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5 sm:gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-1.5 sm:gap-2 opacity-95 sm:opacity-0 sm:group-hover:opacity-100 translate-x-0 sm:translate-x-2 sm:group-hover:translate-x-0 transition-all duration-300 z-10">
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -77,6 +96,29 @@ export function ProductCard({ product }: ProductCardProps) {
                 className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isWishlisted ? "fill-current" : ""}`}
               />
             </button>
+
+            {/* Quick Add to Cart */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleQuickAdd();
+              }}
+              className={`p-1.5 sm:p-2.5 rounded-full backdrop-blur-md shadow-sm transition-all duration-200 flex items-center justify-center cursor-pointer ${
+                isAdded
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white/90 text-text-dark hover:bg-[#C9A15C] hover:text-[#181411]"
+              }`}
+              aria-label="Quick add to cart"
+              title="Add to cart"
+            >
+              {isAdded ? (
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+              ) : (
+                <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              )}
+            </button>
+
             <Link
               href={`/shop/${product.slug}`}
               className="p-1.5 sm:p-2.5 rounded-full bg-white/90 text-text-dark hover:bg-white hover:text-burgundy backdrop-blur-md shadow-sm transition-all duration-200 hidden sm:flex items-center justify-center"
