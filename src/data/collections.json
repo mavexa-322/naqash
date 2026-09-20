@@ -1,0 +1,30 @@
+[
+  {
+    "id": "11111111-1111-1111-1111-111111111101",
+    "name": "Persian Heritage",
+    "slug": "persian-heritage",
+    "description": "Classic Persian designs hand-knotted by generational artisans with timeless floral and medallion motifs.",
+    "banner_url": "/rugs/persian-heritage.jpg"
+  },
+  {
+    "id": "11111111-1111-1111-1111-111111111102",
+    "name": "Modern Minimal",
+    "slug": "modern-minimal",
+    "description": "Contemporary and minimalist area rugs crafted for modern interiors with understated elegance.",
+    "banner_url": "/rugs/modern-minimal.jpg"
+  },
+  {
+    "id": "11111111-1111-1111-1111-111111111103",
+    "name": "Vintage & Overdyed",
+    "slug": "vintage-overdyed",
+    "description": "Reclaimed vintage heirloom rugs renewed with vibrant overdyed hues and authentic distressed patina.",
+    "banner_url": "/rugs/vintage-overdyed.jpg"
+  },
+  {
+    "id": "11111111-1111-1111-1111-111111111104",
+    "name": "Bokhara",
+    "slug": "bokhara",
+    "description": "Timeless geometric Turkmen gul motifs hand-knotted in premium New Zealand wool.",
+    "banner_url": "/rugs/bokhara-red.jpg"
+  }
+]

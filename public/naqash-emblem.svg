@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 65 640 405" fill="none" role="img" aria-label="Naqash Emblem">
+  <!-- Elegant Thread Wave & Flourish Loop -->
+  <g stroke="#C9A15C" stroke-linecap="round" stroke-linejoin="round" stroke-width="7">
+    <path d="M96 276c-14-82 57-133 160-106 82 22 121 72 220 28 71-32 125-98 186-92 51 5 63 47 31 72-24 19-64 12-81-4" />
+    <path d="M96 276c-4 41 26 69 77 65 48-4 75-35 113-50 38-16 50 13 36 47-12 30-35 50-65 51-17 1-28-7-32-17" />
+  </g>
+  
+  <!-- Slanted Weaving Needle in Gold -->
+  <path d="M644 199l-80 252 103-238c7-17-17-30-23-14z" fill="#C9A15C" stroke="#C9A15C" stroke-width="2" stroke-linejoin="round" />
+  
+  <!-- Needle Eye & Thread Highlight in Ivory -->
+  <path d="M656 208c-12-13-29 4-22 18 8 17 26 17 34 1" stroke="#FFFDF9" stroke-width="4" stroke-linecap="round" fill="none" />
+  
+  <!-- Arabic Calligraphy "نقاش" in Gold -->
+  <text x="418" y="409" text-anchor="middle" direction="rtl" unicode-bidi="bidi-override" font-family="'Scheherazade New', 'Amiri', 'Traditional Arabic', 'Times New Roman', serif" font-size="114" font-weight="bold" fill="#C9A15C">نقاش</text>
+</svg>
