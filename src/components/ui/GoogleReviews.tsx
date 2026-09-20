@@ -74,6 +74,10 @@ const reviews: Review[] = [
 export function GoogleReviews() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 45;
 
   const next = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % reviews.length);
@@ -82,6 +86,27 @@ export function GoogleReviews() {
   const prev = useCallback(() => {
     setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   }, []);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setIsAutoPlaying(false);
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    setIsAutoPlaying(true);
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      next();
+    } else if (distance < -minSwipeDistance) {
+      prev();
+    }
+  };
 
   useEffect(() => {
     if (!isAutoPlaying) return;
@@ -92,31 +117,14 @@ export function GoogleReviews() {
   const review = reviews[currentIndex];
 
   return (
-    <section className="py-24 md:py-36 bg-ivory border-t border-[#DFD7C9] text-text-dark relative overflow-hidden">
+    <section className="py-14 sm:py-24 md:py-36 bg-ivory border-t border-[#DFD7C9] text-text-dark relative overflow-hidden">
       <div className="container px-4 md:px-8 relative z-10">
         {/* Brand & Google Reviews Combined Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-6 mb-14 md:mb-18">
-          {/* Proper Naqash Brand Emblem Header */}
-          <div className="flex flex-col items-center justify-center gap-2">
-            <Image
-              src="/naqash-emblem.svg"
-              alt="Naqash Carpets Emblem"
-              width={56}
-              height={36}
-              className="h-9 md:h-10 w-auto object-contain"
-            />
-            <span className="font-heading text-lg md:text-xl tracking-[0.26em] text-text-dark uppercase font-medium">
-              NAQASH
-            </span>
-            <span className="text-[8px] md:text-[9px] tracking-[0.32em] text-text-muted uppercase font-light -mt-1">
-              Handmade Carpets
-            </span>
-          </div>
-
+        <div className="max-w-3xl mx-auto text-center space-y-3 sm:space-y-4 mb-8 sm:mb-12 md:mb-14">
           {/* Google Reviews Live Badge */}
-          <div className="inline-flex items-center gap-3.5 bg-white border border-[#DFD7C9] rounded-full px-5 py-2.5 shadow-xs">
+          <div className="inline-flex items-center gap-2.5 sm:gap-3.5 bg-white border border-[#DFD7C9] rounded-full px-4 sm:px-5 py-1.5 sm:py-2.5 shadow-xs">
             {/* Authentic Google 'G' Logo */}
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
               <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
               <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
@@ -128,7 +136,7 @@ export function GoogleReviews() {
             {/* 5 Stars in Gold */}
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 fill-[#C9A15C] text-[#C9A15C]" />
+                <Star key={i} className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-[#C9A15C] text-[#C9A15C]" />
               ))}
             </div>
 
@@ -136,7 +144,7 @@ export function GoogleReviews() {
             <span className="text-[11px] text-text-muted hidden sm:inline">(120+ verified reviews)</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-medium text-text-dark tracking-tight">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-heading font-medium text-text-dark tracking-tight">
             Voices from Our Collectors
           </h2>
         </div>
@@ -146,46 +154,49 @@ export function GoogleReviews() {
           className="max-w-3xl mx-auto"
           onMouseEnter={() => setIsAutoPlaying(false)}
           onMouseLeave={() => setIsAutoPlaying(true)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          <div className="bg-white border border-[#DFD7C9] rounded-2xl p-7 md:p-12 shadow-sm relative">
+          <div className="bg-white border border-[#DFD7C9] rounded-2xl p-5 sm:p-8 md:p-12 shadow-sm relative">
             {/* Google Logo Watermark */}
-            <div className="absolute top-6 right-6 flex items-center gap-1.5 opacity-80">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+            <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-1.5 opacity-80">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
                 <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
               </svg>
-              <span className="text-[10px] text-text-muted uppercase tracking-wider font-medium">Verified Google Review</span>
+              <span className="text-[9px] sm:text-[10px] text-text-muted uppercase tracking-wider font-medium">Verified Review</span>
             </div>
 
             {/* Stars */}
-            <div className="flex items-center gap-1 mb-5">
+            <div className="flex items-center gap-0.5 sm:gap-1 mb-3.5 sm:mb-5">
               {[...Array(review.rating)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-[#C9A15C] text-[#C9A15C]" />
+                <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#C9A15C] text-[#C9A15C]" />
               ))}
             </div>
 
             {/* Review Text */}
-            <p className="font-heading italic text-lg sm:text-xl md:text-2xl leading-relaxed text-text-dark">
+            <p className="font-heading italic text-base sm:text-xl md:text-2xl leading-relaxed text-text-dark">
               &ldquo;{review.text}&rdquo;
             </p>
 
             {/* Reviewer Details */}
-            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-[#DFD7C9]">
-              <div className="w-11 h-11 rounded-full bg-cream-alt text-burgundy font-heading font-medium flex items-center justify-center text-sm border border-[#DFD7C9]">
+            <div className="flex items-center gap-3 sm:gap-4 mt-5 sm:mt-8 pt-4 sm:pt-6 border-t border-[#DFD7C9]">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-cream-alt text-burgundy font-heading font-medium flex items-center justify-center text-xs sm:text-sm border border-[#DFD7C9] shrink-0">
                 {review.avatar}
               </div>
-              <div className="flex-1">
-                <h4 className="font-heading text-base font-semibold text-text-dark">{review.name}</h4>
-                <div className="flex items-center gap-2 text-xs text-text-muted mt-0.5">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-heading text-sm sm:text-base font-semibold text-text-dark truncate">{review.name}</h4>
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-text-muted mt-0.5">
                   {review.location && <span>{review.location}</span>}
                   {review.location && <span>·</span>}
                   <span>{review.date}</span>
                   {review.purchased && (
                     <>
                       <span>·</span>
-                      <span className="text-burgundy font-medium">{review.purchased}</span>
+                      <span className="text-burgundy font-medium truncate">{review.purchased}</span>
                     </>
                   )}
                 </div>
@@ -193,24 +204,25 @@ export function GoogleReviews() {
             </div>
           </div>
 
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between mt-8">
-            <div className="flex gap-2 items-center">
+          {/* Navigation Controls: Centered on mobile without arrows, arrows on desktop */}
+          <div className="flex items-center justify-center sm:justify-between mt-5 sm:mt-8">
+            <div className="flex gap-1.5 sm:gap-2 items-center">
               {reviews.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
                   className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                     i === currentIndex
-                      ? "bg-[#C9A15C] w-8"
-                      : "bg-[#DFD7C9] w-3 hover:bg-[#C9A15C]/60"
+                      ? "bg-[#C9A15C] w-6 sm:w-8"
+                      : "bg-[#DFD7C9] w-2 sm:w-3 hover:bg-[#C9A15C]/60"
                   }`}
                   aria-label={`Go to review ${i + 1}`}
                 />
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
+            {/* Arrows hidden on mobile, visible on sm and above */}
+            <div className="hidden sm:flex items-center gap-3">
               <button
                 onClick={prev}
                 className="p-2.5 rounded-full border border-[#DFD7C9] bg-white text-text-muted hover:border-burgundy hover:text-burgundy hover:bg-cream-alt transition-colors cursor-pointer shadow-xs"

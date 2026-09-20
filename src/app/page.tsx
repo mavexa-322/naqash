@@ -401,7 +401,7 @@ export default async function Home() {
       <GoogleReviews />
 
       {/* 8. Why Choose Naqash Carpets */}
-      <section className="py-28 md:py-36 relative overflow-hidden bg-[#FAF7F2] border-t border-[#DFD7C9]">
+      <section className="py-16 sm:py-24 md:py-36 relative overflow-hidden bg-[#FAF7F2] border-t border-[#DFD7C9]">
         {/* Background Carpet Image provided by User */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -417,55 +417,55 @@ export default async function Home() {
         </div>
 
         <div className="container px-4 md:px-8 relative z-10">
-          <div className="text-center mb-16 space-y-4">
+          <div className="text-center mb-10 md:mb-16 space-y-3 sm:space-y-4">
             <span className="text-xs font-semibold tracking-[0.25em] text-burgundy uppercase">The Naqash Difference</span>
-            <h2 className="text-3xl md:text-5xl font-heading font-medium text-text-dark">Why Choose Naqash Carpets</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-medium text-text-dark">Why Choose Naqash Carpets</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
             {[
               {
-                icon: <Palette className="h-5 w-5" />,
+                icon: <Palette className="h-4 w-4 sm:h-5 sm:w-5" />,
                 title: "Authentic Artistry",
                 description: "Every rug is hand-knotted by skilled artisans using centuries-old techniques passed down through generations, ensuring each piece is a unique work of art."
               },
               {
-                icon: <Feather className="h-5 w-5" />,
+                icon: <Feather className="h-4 w-4 sm:h-5 sm:w-5" />,
                 title: "Premium Materials",
                 description: "We source only the finest New Zealand wool, Afghani wool, and pure silk, hand-spun and naturally dyed to create rugs that last for generations."
               },
               {
-                icon: <HomeIcon className="h-5 w-5" />,
+                icon: <HomeIcon className="h-4 w-4 sm:h-5 sm:w-5" />,
                 title: "Design Consultation",
                 description: "Our experts help you find the perfect rug for your space — from selecting the right size and pattern to matching colors with your existing décor."
               },
               {
-                icon: <Package className="h-5 w-5" />,
-                title: "Free Nationwide Delivery",
+                icon: <Package className="h-4 w-4 sm:h-5 sm:w-5" />,
+                title: "Nationwide Delivery",
                 description: "We offer complimentary delivery across Pakistan, with each rug carefully packaged to ensure it arrives in perfect condition at your doorstep."
               },
               {
-                icon: <RefreshCcw className="h-5 w-5" />,
+                icon: <RefreshCcw className="h-4 w-4 sm:h-5 sm:w-5" />,
                 title: "30-Day Returns",
                 description: "Not completely in love? Return your rug within 30 days for a full refund. We want you to be absolutely delighted with your purchase."
               },
               {
-                icon: <HeartHandshake className="h-5 w-5" />,
-                title: "Lifetime Care Support",
+                icon: <HeartHandshake className="h-4 w-4 sm:h-5 sm:w-5" />,
+                title: "Lifetime Support",
                 description: "Every purchase comes with a care guide and access to our cleaning and restoration experts who will help maintain your rug's beauty for decades."
               }
             ].map((item, i) => (
               <div
                 key={i}
-                className="text-center p-8 rounded-2xl border border-[#DFD7C9] bg-white/85 backdrop-blur-md hover:bg-white hover:border-[#C9A15C] hover:-translate-y-1.5 transition-all duration-300 group shadow-xs hover:shadow-lg"
+                className="text-center p-3.5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-[#DFD7C9] bg-white/85 backdrop-blur-md hover:bg-white hover:border-[#C9A15C] hover:-translate-y-1.5 transition-all duration-300 group shadow-xs hover:shadow-lg flex flex-col justify-start"
               >
-                <div className="inline-flex p-3.5 rounded-full bg-cream-alt text-burgundy border border-[#DFD7C9] mb-5 group-hover:bg-burgundy group-hover:text-white group-hover:scale-110 transition-all shadow-xs">
+                <div className="inline-flex p-2.5 sm:p-3.5 rounded-full bg-cream-alt text-burgundy border border-[#DFD7C9] mb-3 sm:mb-4 mx-auto group-hover:bg-burgundy group-hover:text-white group-hover:scale-110 transition-all shadow-xs">
                   {item.icon}
                 </div>
-                <h3 className="text-lg font-heading font-semibold mb-3 text-text-dark group-hover:text-burgundy transition-colors">
+                <h3 className="text-xs sm:text-base md:text-lg font-heading font-semibold mb-1.5 sm:mb-2.5 text-text-dark group-hover:text-burgundy transition-colors line-clamp-1">
                   {item.title}
                 </h3>
-                <p className="text-sm text-text-muted leading-relaxed font-light">
+                <p className="text-[11px] sm:text-xs md:text-sm text-text-muted leading-relaxed font-light line-clamp-3 sm:line-clamp-none">
                   {item.description}
                 </p>
               </div>
