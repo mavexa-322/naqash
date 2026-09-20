@@ -298,17 +298,17 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
       {/* Edit Collection Modal */}
       {editingCollection && (
         <div 
-          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs p-3 sm:p-6 flex justify-center items-start animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) setEditingCollection(null);
           }}
         >
           <div 
-            className="bg-white border border-[#DFD7C9] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[calc(100vh-1.5rem)] sm:max-h-[88vh] my-auto overflow-hidden animate-in zoom-in-95 duration-200"
+            className="relative bg-white border border-[#DFD7C9] rounded-2xl sm:rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] my-auto overflow-hidden animate-in zoom-in-95 duration-200 shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sticky Modal Header */}
-            <div className="flex items-start justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-[#F0EAE1] bg-white sticky top-0 z-20 shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 sm:px-8 sm:py-5 border-b border-[#F0EAE1] bg-white sticky top-0 z-30 shrink-0 shadow-2xs">
               <div>
                 <span className="text-[10px] uppercase tracking-widest font-semibold text-burgundy block mb-0.5">
                   Atelier Collection Management
@@ -320,15 +320,15 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
               <button
                 type="button"
                 onClick={() => setEditingCollection(null)}
-                className="p-2 -mr-2 -mt-1 rounded-xl text-text-muted hover:text-text-dark hover:bg-cream-alt transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-cream-alt hover:bg-burgundy hover:text-white text-text-dark flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-2xs"
                 title="Close modal (Esc)"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Scrollable Modal Body */}
-            <div className="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 text-left">
+            <div className="p-5 sm:p-7 space-y-4 overflow-y-auto flex-1 min-h-0 text-left">
               {editError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
                   {editError}
@@ -394,7 +394,7 @@ export function CollectionsListClient({ initialCollections }: CollectionsListCli
             </div>
 
             {/* Sticky Modal Footer */}
-            <div className="flex items-center justify-end gap-3 px-6 py-3.5 sm:px-8 sm:py-4 border-t border-[#F0EAE1] bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 shrink-0">
+            <div className="flex items-center justify-end gap-3 px-6 py-3.5 sm:px-8 sm:py-4 border-t border-[#F0EAE1] bg-white/95 backdrop-blur-xs sticky bottom-0 z-30 shrink-0">
               <Button
                 type="button"
                 variant="outline"
