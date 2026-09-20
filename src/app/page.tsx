@@ -176,32 +176,33 @@ export default async function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
             {collections.map((collection) => (
               <Link href={`/collections/${collection.slug}`} key={collection.id} className="group cursor-pointer">
-                <div className="relative aspect-4/5 overflow-hidden rounded-2xl mb-5 bg-cream-alt border border-text-muted/20 shadow-sm transition-all duration-500 group-hover:shadow-md">
+                <div className="relative aspect-4/5 overflow-hidden rounded-xl sm:rounded-2xl mb-2.5 sm:mb-5 bg-cream-alt border border-text-muted/20 shadow-sm transition-all duration-500 group-hover:shadow-md">
                   {collection.image ? (
                     <Image
                       src={collection.image}
                       alt={collection.name}
                       fill
                       className="object-cover image-grade transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 400px"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-sm text-text-muted">No image available</div>
                   )}
                   <div className="absolute inset-0 bg-linear-to-t from-charcoal/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                    <span className="inline-flex items-center gap-2 text-text-light text-sm font-medium bg-charcoal/60 backdrop-blur-xs px-4 py-2 rounded-full">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    <span className="hidden sm:inline-flex items-center gap-2 text-text-light text-sm font-medium bg-charcoal/60 backdrop-blur-xs px-4 py-2 rounded-full">
                       <Eye className="w-4 h-4 text-gold" />
                       View Collection
                     </span>
                   </div>
                 </div>
-                <h3 className="text-xl font-heading font-semibold text-center text-text-dark group-hover:text-burgundy transition-colors">
+                <h3 className="text-base sm:text-xl font-heading font-semibold text-center text-text-dark group-hover:text-burgundy transition-colors">
                   {collection.name}
                 </h3>
-                <p className="text-sm text-text-muted text-center mt-1">{collection.description}</p>
+                <p className="text-xs sm:text-sm text-text-muted text-center mt-1 line-clamp-2">{collection.description}</p>
               </Link>
             ))}
           </div>
@@ -241,12 +242,12 @@ export default async function Home() {
           </div>
 
           {/* Product Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {bestSellers.map((product) => (
               <Link 
                 href={`/shop/${product.slug}`} 
                 key={product.id}
-                className="group flex flex-col bg-ivory rounded-2xl overflow-hidden border border-[#DFD7C9] shadow-xs hover:shadow-lg transition-all duration-300"
+                className="group flex flex-col bg-ivory rounded-xl sm:rounded-2xl overflow-hidden border border-[#DFD7C9] shadow-xs hover:shadow-lg transition-all duration-300"
               >
                 <div className="relative aspect-square overflow-hidden bg-cream-alt">
                   {product.image ? (
@@ -255,6 +256,7 @@ export default async function Home() {
                       alt={product.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-xs text-text-muted">
@@ -263,9 +265,9 @@ export default async function Home() {
                   )}
 
                   {/* Best Seller Gold Badge */}
-                  <div className="absolute top-3 left-3 z-10">
-                    <span className="inline-flex items-center gap-1 bg-[#C9A15C] text-[#1C1815] text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full shadow-sm">
-                      <Sparkles className="w-3 h-3" />
+                  <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10">
+                    <span className="inline-flex items-center gap-1 bg-[#C9A15C] text-[#1C1815] text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm">
+                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       Best Seller
                     </span>
                   </div>
@@ -279,31 +281,31 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
+                <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-2">
                   <div>
                     {product.collection && (
-                      <span className="text-[11px] uppercase tracking-wider text-text-muted font-medium block">
+                      <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-text-muted font-medium block truncate">
                         {product.collection}
                       </span>
                     )}
-                    <h3 className="font-heading text-base font-medium text-text-dark group-hover:text-burgundy transition-colors line-clamp-1">
+                    <h3 className="font-heading text-xs sm:text-base font-medium text-text-dark group-hover:text-burgundy transition-colors line-clamp-1">
                       {product.title}
                     </h3>
                   </div>
 
                   <div className="flex items-baseline justify-between pt-1 border-t border-[#DFD7C9]/60">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-text-dark">
+                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2">
+                      <span className="text-xs sm:text-sm font-semibold text-text-dark">
                         PKR {Number(product.salePrice ?? product.basePrice).toLocaleString()}
                       </span>
                       {product.salePrice && (
-                        <span className="text-xs text-text-muted line-through">
+                        <span className="text-[10px] sm:text-xs text-text-muted line-through">
                           PKR {Number(product.basePrice).toLocaleString()}
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-burgundy font-medium group-hover:translate-x-0.5 transition-transform flex items-center">
-                      <ArrowRight className="w-3.5 h-3.5" />
+                    <span className="text-xs text-burgundy font-medium group-hover:translate-x-0.5 transition-transform flex items-center shrink-0 ml-1">
+                      <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </span>
                   </div>
                 </div>
