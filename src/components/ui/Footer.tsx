@@ -7,14 +7,14 @@ export function Footer() {
     <footer className="bg-charcoal text-text-muted pt-12 sm:pt-20 md:pt-28 border-t border-[#3A332C]">
       <div className="container px-4 md:px-8 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 sm:gap-10 lg:gap-16">
         {/* Brand Column */}
-        <div className="col-span-2 lg:col-span-1 space-y-3 sm:space-y-4">
-          <Link href="/" className="inline-flex" aria-label="Naqash home">
+        <div className="col-span-2 lg:col-span-1 space-y-3.5 sm:space-y-4 flex flex-col items-start">
+          <Link href="/" className="inline-flex items-start justify-start" aria-label="Naqash home">
             <Image
-              src="/naqash-logo.svg"
+              src="/naqash-logo-light.svg"
               alt="Naqash"
-              width={160}
-              height={80}
-              className="h-14 sm:h-20 w-auto object-contain object-left brightness-0 invert opacity-95"
+              width={140}
+              height={100}
+              className="h-14 sm:h-18 w-auto object-contain object-left"
             />
           </Link>
           <p className="text-xs sm:text-sm leading-relaxed max-w-sm text-text-muted">
