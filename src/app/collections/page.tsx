@@ -92,10 +92,10 @@ export default async function CollectionsPage() {
       </section>
 
       {/* Main Content Area */}
-      <section className="container max-w-7xl mx-auto px-4 md:px-8">
+      <section className="container max-w-7xl mx-auto px-3 sm:px-4 md:px-8">
         {collections.length > 0 ? (
           /* Collections Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:gap-10 lg:gap-12">
             {collections.map((collection, index) => {
               const targetUrl = `/collections/${collection.slug}`;
               const formattedIndex = String(index + 1).padStart(2, '0');
@@ -103,17 +103,17 @@ export default async function CollectionsPage() {
               return (
                 <div
                   key={collection.id}
-                  className="group bg-white rounded-3xl border border-[#DFD7C9] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-500 flex flex-col"
+                  className="group bg-white rounded-2xl sm:rounded-3xl border border-[#DFD7C9] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-500 flex flex-col"
                 >
                   {/* Banner Image Container */}
-                  <Link href={targetUrl} className="block relative aspect-[16/10] overflow-hidden bg-cream-alt">
+                  <Link href={targetUrl} className="block relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden bg-cream-alt">
                     {collection.image ? (
                       <Image
                         src={collection.image}
                         alt={collection.name}
                         fill
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                        sizes="(max-width: 768px) 50vw, 50vw"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-text-muted bg-cream-alt">
@@ -125,43 +125,44 @@ export default async function CollectionsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
 
                     {/* Rug Count Badge */}
-                    <div className="absolute top-4 right-4 z-10">
-                      <span className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-widest font-semibold text-burgundy shadow-sm border border-white/60">
+                    <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+                      <span className="bg-white/95 backdrop-blur-md px-2 py-0.5 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[11px] uppercase tracking-wider sm:tracking-widest font-semibold text-burgundy shadow-sm border border-white/60">
                         {collection.productCount} {collection.productCount === 1 ? 'Rug' : 'Rugs'}
                       </span>
                     </div>
 
                     {/* Sequence Badge */}
-                    <div className="absolute bottom-4 left-4 z-10">
-                      <span className="bg-black/40 backdrop-blur-xs text-white/90 px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] font-medium border border-white/20">
+                    <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 z-10">
+                      <span className="bg-black/40 backdrop-blur-xs text-white/90 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[8px] sm:text-[10px] uppercase tracking-wider sm:tracking-[0.2em] font-medium border border-white/20">
                         Lineage {formattedIndex}
                       </span>
                     </div>
                   </Link>
 
                   {/* Body Details */}
-                  <div className="p-6 sm:p-8 flex flex-col flex-1">
-                    <div className="flex items-center justify-between gap-4 mb-2.5">
-                      <h2 className="font-heading text-2xl sm:text-3xl font-medium text-text-dark group-hover:text-burgundy transition-colors">
+                  <div className="p-3 sm:p-6 md:p-8 flex flex-col flex-1">
+                    <div className="flex items-center justify-between gap-2 sm:gap-4 mb-1.5 sm:mb-2.5">
+                      <h2 className="font-heading text-base sm:text-2xl md:text-3xl font-medium text-text-dark group-hover:text-burgundy transition-colors line-clamp-1">
                         <Link href={targetUrl}>{collection.name}</Link>
                       </h2>
                     </div>
 
-                    <p className="text-text-muted text-sm sm:text-base line-clamp-3 leading-relaxed font-light mb-8 flex-1">
+                    <p className="text-text-muted text-xs sm:text-sm md:text-base line-clamp-2 sm:line-clamp-3 leading-relaxed font-light mb-3 sm:mb-8 flex-1">
                       {collection.description ||
                         'Handcrafted rugs showcasing signature weaving motifs and exceptional craftsmanship.'}
                     </p>
 
-                    <div className="mt-auto pt-4 border-t border-[#F0EAE1] flex items-center justify-between">
+                    <div className="mt-auto pt-2.5 sm:pt-4 border-t border-[#F0EAE1] flex items-center justify-between">
                       <Link
                         href={targetUrl}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-burgundy hover:bg-burgundy-deep text-white rounded-full text-xs uppercase tracking-widest font-medium transition-all duration-200 shadow-xs group/btn cursor-pointer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2 sm:py-2.5 bg-burgundy hover:bg-burgundy-deep text-white rounded-full text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest font-medium transition-all duration-200 shadow-xs group/btn cursor-pointer"
                       >
-                        Explore Collection
-                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                        <span>Explore</span>
+                        <span className="hidden sm:inline">Collection</span>
+                        <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover/btn:translate-x-1" />
                       </Link>
 
-                      <span className="text-xs uppercase tracking-wider text-text-muted font-medium">
+                      <span className="hidden sm:inline-block text-xs uppercase tracking-wider text-text-muted font-medium">
                         View Pieces
                       </span>
                     </div>
