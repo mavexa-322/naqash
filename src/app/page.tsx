@@ -326,58 +326,71 @@ export default async function Home() {
       </section>
 
       {/* 4. See Our Rugs in Your Space */}
-      <section className="py-32 md:py-40 bg-ivory border-t border-[#DFD7C9]">
+      <section className="py-20 md:py-36 bg-ivory border-t border-[#DFD7C9]">
         <div className="container px-4 md:px-8">
-          <div className="text-center mb-16 space-y-4">
+          <div className="text-center mb-12 md:mb-16 space-y-3 sm:space-y-4">
             <span className="text-xs font-medium tracking-[0.2em] text-text-muted uppercase">
               <Sparkles className="w-4 h-4 inline mr-1 text-gold" />
               Design Inspiration
             </span>
             <h2 className="text-3xl md:text-5xl font-heading font-medium text-text-dark">See Our Rugs in Your Space</h2>
-            <p className="text-text-muted max-w-xl mx-auto">Get inspired by how our handcrafted rugs transform living spaces into works of art.</p>
+            <p className="text-text-muted text-sm md:text-base max-w-xl mx-auto font-light">Get inspired by how our handcrafted rugs transform living spaces into works of art.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Large feature image */}
-            <div className="relative aspect-4/3 md:aspect-auto md:row-span-2 overflow-hidden rounded-2xl border border-text-muted/20 group shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-3 sm:gap-6">
+            {/* Large feature image - Spans full width on mobile, 1 col + 2 rows on laptop */}
+            <div className="col-span-2 md:col-span-1 md:row-span-2 relative aspect-16/10 sm:aspect-4/3 md:aspect-auto overflow-hidden rounded-xl sm:rounded-2xl border border-text-muted/20 group shadow-sm">
               <Image
                 src="/rug-showcase.jpg"
                 alt="Elegant dining room with handwoven carpet"
                 fill
                 className="object-cover image-grade transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-charcoal/85 via-charcoal/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8">
-                <span className="text-xs text-gold uppercase tracking-wider font-medium">Featured Space</span>
-                <h3 className="text-2xl font-heading font-bold text-text-light mt-2">The Grand Dining Room</h3>
-                <p className="text-text-light/80 text-sm mt-1 max-w-sm">A heritage Bokhara carpet creating warmth and elegance under a modern dining setting.</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-4 sm:p-8">
+                <span className="text-[10px] sm:text-xs text-gold uppercase tracking-wider font-semibold">Featured Space</span>
+                <h3 className="text-lg sm:text-2xl md:text-3xl font-heading font-bold text-white mt-1 sm:mt-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">The Grand Dining Room</h3>
+                <p className="text-[#F5EDE3] text-xs sm:text-sm mt-1 max-w-sm font-light line-clamp-2 sm:line-clamp-none drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">A heritage Bokhara carpet creating warmth and elegance under a modern dining setting.</p>
               </div>
             </div>
-            {/* Two smaller images */}
-            <div className="relative aspect-4/3 overflow-hidden rounded-2xl border border-text-muted/20 group shadow-sm">
+
+            {/* Two smaller images - Side-by-side 2 in a row on mobile, stacked on laptop */}
+            <div className="col-span-1 relative aspect-[4/3.5] sm:aspect-4/3 overflow-hidden rounded-xl sm:rounded-2xl border border-text-muted/20 group shadow-sm">
               <Image
                 src="/hero-rug.jpg"
                 alt="Living room with Persian rug"
                 fill
                 className="object-cover image-grade transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 50vw"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-charcoal/85 via-charcoal/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-lg font-heading font-bold text-text-light">Living Room Elegance</h3>
-                <p className="text-text-light/80 text-sm mt-1">Persian medallion rug as a stunning centerpiece.</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-6">
+                <h3 className="text-xs sm:text-base md:text-lg font-heading font-bold text-white leading-snug drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                  Living Room Elegance
+                </h3>
+                <p className="text-[#F0E6DA] text-[10px] sm:text-xs md:text-sm mt-0.5 sm:mt-1 line-clamp-2 leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)] font-normal">
+                  Persian medallion rug as a centerpiece.
+                </p>
               </div>
             </div>
-            <div className="relative aspect-4/3 overflow-hidden rounded-2xl border border-text-muted/20 group shadow-sm">
+
+            <div className="col-span-1 relative aspect-[4/3.5] sm:aspect-4/3 overflow-hidden rounded-xl sm:rounded-2xl border border-text-muted/20 group shadow-sm">
               <Image
                 src="/modern-minimal.jpg"
                 alt="Contemporary room with modern rug"
                 fill
                 className="object-cover image-grade transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 50vw"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-charcoal/85 via-charcoal/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-lg font-heading font-bold text-text-light">Modern Retreat</h3>
-                <p className="text-text-light/80 text-sm mt-1">Contemporary geometric patterns for minimalist spaces.</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-5 md:p-6">
+                <h3 className="text-xs sm:text-base md:text-lg font-heading font-bold text-white leading-snug drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                  Modern Retreat
+                </h3>
+                <p className="text-[#F0E6DA] text-[10px] sm:text-xs md:text-sm mt-0.5 sm:mt-1 line-clamp-2 leading-tight drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)] font-normal">
+                  Geometric patterns for modern spaces.
+                </p>
               </div>
             </div>
           </div>
